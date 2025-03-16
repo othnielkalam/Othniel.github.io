@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Tableau en Image</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <h1 class="text-3xl font-bold text-center mb-6 text-primary">Générateur de Tableau en Image (par okb/creat)</h1>
+        
+        <!-- Configuration du tableau -->
+        <div class="mb-6 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4">Configuration du tableau</h2>
+            
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-grow">
+                    <label for="rowCount" class="block text-sm font-medium mb-2">Nombre de lignes</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="rowCount" min="1" max="50" value="5" class="w-full px-3 py-2 text-base border rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        <button id="createTableBtn" class="bg-primary hover:bg-opacity-90 text-white font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out whitespace-nowrap">
+                            Créer le tableau
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tableau éditable -->
+        <div id="tableContainer" class="mb-6 overflow-x-auto">
+            <table id="dataTable" class="w-full border-collapse min-w-full">
+                <thead class="bg-gray-100 dark:bg-gray-700">
+                    <tr>
+                        <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">№</th>
+                        <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Nom</th>
+                        <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Post-nom</th>
+                        <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Prénom</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Le contenu du tableau sera généré dynamiquement -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Options de personnalisation -->
+        <div class="mb-6 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4">Personnalisation</h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="bgColorPicker" class="block text-sm font-medium mb-2">Couleur de fond</label>
+                    <div class="flex items-center gap-2">
+                        <input type="color" id="bgColorPicker" value="#ffffff" class="h-8 w-8 rounded cursor-pointer">
+                        <input type="text" id="bgColorText" value="#ffffff" class="flex-grow px-3 py-1 text-base border rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="textColorPicker" class="block text-sm font-medium mb-2">Couleur du texte</label>
+                    <div class="flex items-center gap-2">
+                        <input type="color" id="textColorPicker" value="#000000" class="h-8 w-8 rounded cursor-pointer">
+                        <input type="text" id="textColorText" value="#000000" class="flex-grow px-3 py-1 text-base border rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="headerBgColorPicker" class="block text-sm font-medium mb-2">Couleur d'en-tête</label>
+                    <div class="flex items-center gap-2">
+                        <input type="color" id="headerBgColorPicker" value="#f3f4f6" class="h-8 w-8 rounded cursor-pointer">
+                        <input type="text" id="headerBgColorText" value="#f3f4f6" class="flex-grow px-3 py-1 text-base border rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="borderColorPicker" class="block text-sm font-medium mb-2">Couleur des bordures</label>
+                    <div class="flex items-center gap-2">
+                        <input type="color" id="borderColorPicker" value="#d1d5db" class="h-8 w-8 rounded cursor-pointer">
+                        <input type="text" id="borderColorText" value="#d1d5db" class="flex-grow px-3 py-1 text-base border rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="fontSelect" class="block text-sm font-medium mb-2">Police</label>
+                    <select id="fontSelect" class="w-full px-3 py-2 text-base border rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="fontSize" class="block text-sm font-medium mb-2">Taille de la police</label>
+                    <div class="flex items-center gap-2">
+                        <input type="range" id="fontSize" min="12" max="24" value="14" class="flex-grow">
+                        <span id="fontSizeValue" class="w-10 text-center">14px</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="cellPadding" class="block text-sm font-medium mb-2">Espacement cellule</label>
+                    <div class="flex items-center gap-2">
+                        <input type="range" id="cellPadding" min="5" max="20" value="10" class="flex-grow">
+                        <span id="cellPaddingValue" class="w-10 text-center">10px</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="borderWidth" class="block text-sm font-medium mb-2">Épaisseur bordure</label>
+                    <div class="flex items-center gap-2">
+                        <input type="range" id="borderWidth" min="1" max="5" value="1" class="flex-grow">
+                        <span id="borderWidthValue" class="w-10 text-center">1px</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="tablePadding" class="block text-sm font-medium mb-2">Marge externe</label>
+                    <div class="flex items-center gap-2">
+                        <input type="range" id="tablePadding" min="10" max="50" value="20" class="flex-grow">
+                        <span id="tablePaddingValue" class="w-10 text-center">20px</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bouton de génération -->
+        <button id="generateBtn" class="w-full py-3 px-4 bg-primary hover:bg-opacity-90 text-white font-medium rounded-lg transition duration-150 ease-in-out mb-6">
+            Générer l'image
+        </button>
+        
+        <!-- Affichage de l'image générée -->
+        <div id="imageContainer" class="hidden mb-6">
+            <h2 class="text-xl font-semibold mb-4">Image générée</h2>
+            <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col items-center">
+                <img id="generatedImage" class="max-w-full border border-gray-300 dark:border-gray-600" alt="Tableau généré">
+                <button id="downloadBtn" class="mt-4 bg-primary hover:bg-opacity-90 text-white font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Télécharger l'image
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Détection du mode sombre
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const rowCountInput = document.getElementById('rowCount');
+            const createTableBtn = document.getElementById('createTableBtn');
+            const tableBody = document.getElementById('tableBody');
+            const generateBtn = document.getElementById('generateBtn');
+            const imageContainer = document.getElementById('imageContainer');
+            const generatedImage = document.getElementById('generatedImage');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Contrôles de personnalisation
+            const bgColorPicker = document.getElementById('bgColorPicker');
+            const bgColorText = document.getElementById('bgColorText');
+            const textColorPicker = document.getElementById('textColorPicker');
+            const textColorText = document.getElementById('textColorText');
+            const headerBgColorPicker = document.getElementById('headerBgColorPicker');
+            const headerBgColorText = document.getElementById('headerBgColorText');
+            const borderColorPicker = document.getElementById('borderColorPicker');
+            const borderColorText = document.getElementById('borderColorText');
+            const fontSelect = document.getElementById('fontSelect');
+            const fontSize = document.getElementById('fontSize');
+            const fontSizeValue = document.getElementById('fontSizeValue');
+            const cellPadding = document.getElementById('cellPadding');
+            const cellPaddingValue = document.getElementById('cellPaddingValue');
+            const borderWidth = document.getElementById('borderWidth');
+            const borderWidthValue = document.getElementById('borderWidthValue');
+            const tablePadding = document.getElementById('tablePadding');
+            const tablePaddingValue = document.getElementById('tablePaddingValue');
+            
+            // Synchronisation des contrôles de couleur
+            bgColorPicker.addEventListener('input', () => bgColorText.value = bgColorPicker.value);
+            bgColorText.addEventListener('input', () => {
+                if (/^#[0-9A-F]{6}$/i.test(bgColorText.value)) {
+                    bgColorPicker.value = bgColorText.value;
+                }
+            });
+            
+            textColorPicker.addEventListener('input', () => textColorText.value = textColorPicker.value);
+            textColorText.addEventListener('input', () => {
+                if (/^#[0-9A-F]{6}$/i.test(textColorText.value)) {
+                    textColorPicker.value = textColorText.value;
+                }
+            });
+            
+            headerBgColorPicker.addEventListener('input', () => headerBgColorText.value = headerBgColorPicker.value);
+            headerBgColorText.addEventListener('input', () => {
+                if (/^#[0-9A-F]{6}$/i.test(headerBgColorText.value)) {
+                    headerBgColorPicker.value = headerBgColorText.value;
+                }
+            });
+            
+            borderColorPicker.addEventListener('input', () => borderColorText.value = borderColorPicker.value);
+            borderColorText.addEventListener('input', () => {
+                if (/^#[0-9A-F]{6}$/i.test(borderColorText.value)) {
+                    borderColorPicker.value = borderColorText.value;
+                }
+            });
+            
+            // Mise à jour des valeurs des sliders
+            fontSize.addEventListener('input', () => fontSizeValue.textContent = `${fontSize.value}px`);
+            cellPadding.addEventListener('input', () => cellPaddingValue.textContent = `${cellPadding.value}px`);
+            borderWidth.addEventListener('input', () => borderWidthValue.textContent = `${borderWidth.value}px`);
+            tablePadding.addEventListener('input', () => tablePaddingValue.textContent = `${tablePadding.value}px`);
+            
+            // Création du tableau éditable
+            createTableBtn.addEventListener('click', createTable);
+            
+            function createTable() {
+                const rowCount = parseInt(rowCountInput.value) || 5;
+                if (rowCount < 1 || rowCount > 50) {
+                    alert('Veuillez entrer un nombre de lignes entre 1 et 50');
+                    return;
+                }
+                
+                tableBody.innerHTML = '';
+                
+                for (let i = 0; i < rowCount; i++) {
+                    const tr = document.createElement('tr');
+                    tr.className = i % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700';
+                    
+                    // Cellule numéro (non éditable)
+                    const tdNum = document.createElement('td');
+                    tdNum.className = 'border border-gray-300 dark:border-gray-600 px-4 py-2 text-center';
+                    tdNum.textContent = i + 1;
+                    tr.appendChild(tdNum);
+                    
+                    // Cellules éditables: Nom, Post-nom, Prénom
+                    const columns = ['nom', 'postnom', 'prenom'];
+                    
+                    columns.forEach(col => {
+                        const td = document.createElement('td');
+                        td.className = 'border border-gray-300 dark:border-gray-600 p-0';
+                        
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'w-full px-4 py-2 border-0 focus:outline-none focus:ring-2 focus:ring-primary bg-transparent';
+                        input.placeholder = col.charAt(0).toUpperCase() + col.slice(1);
+                        input.setAttribute('data-col', col);
+                        input.setAttribute('data-row', i);
+                        
+                        td.appendChild(input);
+                        tr.appendChild(td);
+                    });
+                    
+                    tableBody.appendChild(tr);
+                }
+            }
+            
+            // Génération de l'image
+            generateBtn.addEventListener('click', generateImage);
+            
+            function generateImage() {
+                const rows = tableBody.querySelectorAll('tr');
+                if (rows.length === 0) {
+                    alert('Veuillez d\'abord créer un tableau');
+                    return;
+                }
+                
+                // Création du canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Récupération des options
+                const bgColor = bgColorPicker.value;
+                const textColor = textColorPicker.value;
+                const headerBgColor = headerBgColorPicker.value;
+                const borderColor = borderColorPicker.value;
+                const font = fontSelect.value;
+                const fontSizeVal = parseInt(fontSize.value);
+                const cellPaddingVal = parseInt(cellPadding.value);
+                const borderWidthVal = parseInt(borderWidth.value);
+                const tablePaddingVal = parseInt(tablePadding.value);
+                
+                // Configuration du canvas
+                ctx.font = `${fontSizeVal}px ${font}`;
+                
+                // Collecte des données du tableau
+                const headers = ['№', 'Nom', 'Post-nom', 'Prénom'];
+                const tableData = [];
+                
+                rows.forEach((row, rowIndex) => {
+                    const rowData = {
+                        num: rowIndex + 1,
+                        nom: row.querySelector('input[data-col="nom"]').value || '',
+                        postnom: row.querySelector('input[data-col="postnom"]').value || '',
+                        prenom: row.querySelector('input[data-col="prenom"]').value || ''
+                    };
+                    tableData.push(rowData);
+                });
+                
+                // Calcul des largeurs de colonnes
+                let columnWidths = [0, 0, 0, 0]; // Changé de const à let pour permettre la modification
+                
+                // Mesurer largeur des en-têtes
+                headers.forEach((header, index) => {
+                    const width = ctx.measureText(header).width + (cellPaddingVal * 2);
+                    if (width > columnWidths[index]) {
+                        columnWidths[index] = width;
+                    }
+                });
+                
+                // Mesurer largeur des données
+                tableData.forEach(row => {
+                    const values = [row.num.toString(), row.nom, row.postnom, row.prenom];
+                    values.forEach((value, index) => {
+                        const width = ctx.measureText(value).width + (cellPaddingVal * 2);
+                        if (width > columnWidths[index]) {
+                            columnWidths[index] = width;
+                        }
+                    });
+                });
+                
+                // Ajout d'un peu d'espace supplémentaire
+                for (let i = 0; i < columnWidths.length; i++) {
+                    columnWidths[i] += 10;
+                }
+                
+                // Calcul de la hauteur des lignes
+                const rowHeight = fontSizeVal + (cellPaddingVal * 2);
+                
+                // Calcul des dimensions du canvas
+                const tableWidth = columnWidths.reduce((a, b) => a + b, 0) + (borderWidthVal * (columnWidths.length + 1));
+                const tableHeight = rowHeight * (tableData.length + 1) + (borderWidthVal * (tableData.length + 2));
+                
+                canvas.width = tableWidth + (tablePaddingVal * 2);
+                canvas.height = tableHeight + (tablePaddingVal * 2);
+                
+                // Arrière-plan
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Position initiale du tableau
+                let xOffset = tablePaddingVal;
+                let yOffset = tablePaddingVal;
+                
+                // Dessiner l'en-tête
+                ctx.fillStyle = headerBgColor;
+                ctx.fillRect(
+                    xOffset, 
+                    yOffset, 
+                    tableWidth, 
+                    rowHeight + (borderWidthVal * 2)
+                );
+                
+                // Dessiner les lignes du tableau (lignes horizontales)
+                ctx.fillStyle = borderColor;
+                
+                // Ligne horizontale supérieure
+                ctx.fillRect(
+                    xOffset, 
+                    yOffset, 
+                    tableWidth, 
+                    borderWidthVal
+                );
+                
+                // Ligne horizontale après l'en-tête
+                ctx.fillRect(
+                    xOffset, 
+                    yOffset + rowHeight + borderWidthVal, 
+                    tableWidth, 
+                    borderWidthVal
+                );
+                
+                // Lignes horizontales pour chaque ligne de données
+                for (let i = 0; i <= tableData.length; i++) {
+                    ctx.fillRect(
+                        xOffset, 
+                        yOffset + (i + 1) * rowHeight + (i + 1) * borderWidthVal, 
+                        tableWidth, 
+                        borderWidthVal
+                    );
+                }
+                
+                // Dessiner les colonnes (lignes verticales)
+                // Première ligne verticale
+                ctx.fillRect(
+                    xOffset, 
+                    yOffset, 
+                    borderWidthVal, 
+                    tableHeight
+                );
+                
+                // Lignes verticales entre les colonnes
+                let currentX = xOffset;
+                for (let i = 0; i < columnWidths.length; i++) {
+                    currentX += columnWidths[i] + borderWidthVal;
+                    ctx.fillRect(
+                        currentX, 
+                        yOffset, 
+                        borderWidthVal, 
+                        tableHeight
+                    );
+                }
+                
+                // Dessiner le texte des en-têtes
+                ctx.fillStyle = textColor;
+                ctx.font = `bold ${fontSizeVal}px ${font}`;
+                
+                currentX = xOffset + borderWidthVal;
+                headers.forEach((header, index) => {
+                    ctx.fillText(
+                        header, 
+                        currentX + cellPaddingVal, 
+                        yOffset + rowHeight / 2 + fontSizeVal / 2
+                    );
+                    currentX += columnWidths[index] + borderWidthVal;
+                });
+                
+                // Dessiner les données
+                ctx.font = `${fontSizeVal}px ${font}`;
+                
+                tableData.forEach((row, rowIndex) => {
+                    const y = yOffset + rowHeight + (rowIndex + 1) * borderWidthVal + rowIndex * rowHeight + rowHeight / 2 + fontSizeVal / 2;
+                    
+                    // Arrière-plan de la ligne alternée
+                    if (rowIndex % 2 === 1) {
+                        ctx.fillStyle = 'rgba(0,0,0,0.03)';
+                        ctx.fillRect(
+                            xOffset + borderWidthVal, 
+                            yOffset + rowHeight + (rowIndex + 1) * borderWidthVal + rowIndex * rowHeight, 
+                            tableWidth - borderWidthVal * 2, 
+                            rowHeight
+                        );
+                    }
+                    
+                    // Texte
+                    ctx.fillStyle = textColor;
+                    const values = [row.num.toString(), row.nom, row.postnom, row.prenom];
+                    
+                    let cellX = xOffset + borderWidthVal;
+                    values.forEach((value, colIndex) => {
+                        // Alignement centré pour la colonne des numéros
+                        if (colIndex === 0) {
+                            const textWidth = ctx.measureText(value).width;
+                            const center = cellX + columnWidths[colIndex] / 2;
+                            ctx.fillText(
+                                value, 
+                                center - textWidth / 2, 
+                                y
+                            );
+                        } else {
+                            ctx.fillText(
+                                value, 
+                                cellX + cellPaddingVal, 
+                                y
+                            );
+                        }
+                        cellX += columnWidths[colIndex] + borderWidthVal;
+                    });
+                });
+                
+                // Affichage de l'image générée
+                generatedImage.src = canvas.toDataURL('image/png');
+                imageContainer.classList.remove('hidden');
+                
+                // Faire défiler jusqu'à l'image
+                imageContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Fonction de téléchargement de l'image
+            downloadBtn.addEventListener('click', () => {
+                const downloadLink = document.createElement('a');
+                downloadLink.href = generatedImage.src;
+                downloadLink.download = 'tableau.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            });
+            
+            // Créer un tableau initial
+            createTable();
+        });
+    </script>
+</body>
+</html>
